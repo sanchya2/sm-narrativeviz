@@ -1,5 +1,5 @@
 //Global set up and configuration
-const margin = {top: 10, right: 30, bottom: 30, left: 60},
+const margin = {top: 10, right: 30, bottom: 30, left: 100},
     width = 460 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
@@ -22,6 +22,8 @@ let currentSceneIndex = 0
 let co2_annual_data = [];
 let co2_fuel_type_2023 = []
 
+let sharedYScale; //For consistent y-axis
+
 document.addEventListener("DOMContentLoaded", function () {
   setUpSceneLoadData();
 });
@@ -29,18 +31,23 @@ document.addEventListener("DOMContentLoaded", function () {
 //Data Loading 
 
 async function setUpSceneLoadData(){
-    co2_annual_data = await d3.csv("co2rateannual.csv", d => ({
+    co2_annual_data = await d3.csv("annual-co2-emissions.csv", d => ({
         date: new Date(+d.year, 0, 1),
-        mean: +d.mean
+        mean: +d.annual_co2_emissions
 }));
 
     co2_fuel_type_2023 = await d3.csv("co2-emissions-by-type_2023.csv", d => ({
-        type: d.type,
+        Type: d.Type,
         annual_co2_emissions: +d.annual_co2_emissions
 }));
 
 console.log(co2_annual_data);
-console.log(co2_annual_data);
+console.log(co2_fuel_type_2023);
+
+sharedYScale = d3.scaleLinear()
+.domain([d3.min(co2_annual_data, d=> d.mean)-1, d3.max(co2_annual_data, d => d.mean) + 1])
+.nice()
+.range([height,0]);
 
 updateScene(currentSceneIndex);
 updateButtons();
@@ -55,10 +62,10 @@ function updateScene(sceneIndex){
     //set up scene based on index
     if(sceneIndex == 0){
         narrativeTextDiv.html("<h3>Scene 1</h3>")
-        drawScene1PreRise(co2_annual_data); // @TODO NEED TO ADD DATA VAR AND CHANGE HERE
+        drawScene1PreRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 1){
         narrativeTextDiv.html("<h3>Scene 2</h3>")
-        drawScene2PostRise(co2_annual_data);
+        drawScene2PostRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 2){
         narrativeTextDiv.html("<h3>Scene 3</h3>")
         drawBarGraphScene3(co2_fuel_type_2023);
@@ -83,22 +90,21 @@ function updateButtons(){
 
 //Individual scene drawing functions
 
-function drawScene1PreRise (data){
-    console.log("Loading filtered line graph")
-}
-
-function drawScene2PostRise(data){
+function drawScene1PreRise (data, yScale){
+    data = data.filter(d => d.date.getFullYear() <= 1950);
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, width]);
 
-    const y = d3.scaleLinear()
-        .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
-        .nice()
-        .range([height, 0])
+    //const y = d3.scaleLinear()
+    //    .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
+        //.domain(yAxisConsistent)
+    //    .nice()
+    //    .range([height, 0])
 
     const xAxis = d3.axisBottom(x)
-    const yAxis = d3.axisLeft(y)
+    //const yAxis = d3.axisLeft(y)
+    const yAxis = d3.axisLeft(yScale)
 
     chartG.append("g")
         .attr("transform", `translate(0,${height})`)
@@ -112,7 +118,47 @@ function drawScene2PostRise(data){
 
     const line = d3.line()
         .x(d => x(d.date))
-        .y(d => y(d.mean));
+        //.y(d => y(d.mean));
+        .y(d => yScale(d.mean));
+
+    chartG.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 2)
+        .attr("d", line);
+}
+
+function drawScene2PostRise(data, yScale){
+    data = data.filter(d => d.date.getFullYear() >= 1940);
+    const x = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
+        .nice()
+        .range([height, 0])
+
+    const xAxis = d3.axisBottom(x)
+    //const yAxis = d3.axisLeft(y)
+    const yAxis = d3.axisLeft(yScale);
+
+    chartG.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+
+    chartG.append("g")
+        .call(yAxis);
+
+    const line = d3.line()
+        .x(d => x(d.date))
+        //.y(d => y(d.mean));
+        .y(d => yScale(d.mean));
 
     chartG.append("path")
         .datum(data)
@@ -125,6 +171,33 @@ function drawScene2PostRise(data){
 
 function drawBarGraphScene3(data){
     console.log("Loading bar chart")
+    
+    const x = d3.scaleBand()
+    .domain(data.map(d => d.Type))
+    .range([0, width])
+    .padding(0.1);
+
+    const y = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.annual_co2_emissions)])
+    .nice()
+    .range([height, 0]);
+
+    chartG.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(x));
+
+    chartG.append("g")
+    .call(d3.axisLeft(y));
+
+    chartG.selectAll()
+    .data(data)
+    .enter()
+    .append("rect")
+    .attr("x", d => x(d.Type))
+    .attr("y", d => y(d.annual_co2_emissions))
+    .attr("width", x.bandwidth())
+    .attr("height", d => height - y(d.annual_co2_emissions))
+    .attr("fill", "steelblue");
 }
 
 //Navigation event listeners and helpers
