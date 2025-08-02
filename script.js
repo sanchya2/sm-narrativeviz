@@ -137,10 +137,41 @@ function drawScene1PreRise (data, yScale){
         .ease(d3.easeLinear)
         .attr("stroke-dashoffset", 0);
     
+    //Industrial Revolution Begins
+    const industrial_1750 = data.find(d => d.date.getFullYear() === 1750);
+    const industrial_1750_X = x(industrial_1750.date);
+    const industrial_1750_Y = yScale(industrial_1750.mean);
+
+    //First CO2 Scientific Warning
+    const co2_warning_1896 = data.find(d => d.date.getFullYear() === 1896);
+    const co2_warning_1896_X = x(co2_warning_1896.date);
+    const co2_warning_1896_Y = yScale(co2_warning_1896.mean);
+
+    //early1900s
     const early1900s = data.find(d => d.date.getFullYear() === 1900);
     const early1900sX = x(early1900s.date);
     const early1900sY = yScale(early1900s.mean);
     const annotations = [
+        {
+            note: {
+                label: "Mid 1700s: Industrial Revolution Begins, initiating fossil fuel use",
+                title: "Industrial Revolution Begins"
+            },
+            x: industrial_1750_X,
+            y: industrial_1750_Y,
+            dy: -60,
+            dx: 60
+        },
+        {
+            note: {
+                label: "1896: Scientist Svante Arrhenius theorizes CO2's greenhouse effect",
+                title: "First Scientific CO2 Warning"
+            },
+            x: co2_warning_1896_X,
+            y: co2_warning_1896_Y,
+            dy: -60,
+            dx: -60
+        },
         {
             note: {
                 label: "Early 1900s: Global Industrialization expands, driving gradual C02 increase",
