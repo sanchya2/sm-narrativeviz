@@ -137,20 +137,21 @@ function drawScene1PreRise (data, yScale){
         .ease(d3.easeLinear)
         .attr("stroke-dashoffset", 0);
     
-    const industrialRevolution = data.find(d => d.year === 1780)
+    const early1900s = data.find(d => d.date.getFullYear() === 1900);
+    const early1900sX = x(early1900s.date);
+    const early1900sY = yScale(early1900s.mean);
     const annotations = [
         {
             note: {
-                label: "Here is the annotation label",
-                title: "Annotation title"
+                label: "Early 1900s: Global Industrialization expands, driving gradual C02 increase",
+                title: "Early 20th Century Expansion"
             },
-            x: 50,
-            y: 50,
-            dy: 100,
-            dx: 100
+            x: early1900sX,
+            y: early1900sY,
+            dy: -60,
+            dx: 60
         }
     ]
-
     const makeAnnotations = d3.annotation()
     .annotations(annotations);
     chartG.append("g")
@@ -205,7 +206,7 @@ function drawScene2PostRise(data, yScale){
 }
 
 function drawBarGraphScene3(data){
-    console.log("Loading bar chart")
+    const totalEmissions = d3.sum(data, d => d.annual_co2_emissions);
     
     const x = d3.scaleBand()
     .domain(data.map(d => d.Type))
@@ -224,6 +225,10 @@ function drawBarGraphScene3(data){
     chartG.append("g")
     .call(d3.axisLeft(y));
 
+    let tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip");
+
     chartG.selectAll("rect")
     .data(data)
     .enter()
@@ -235,13 +240,45 @@ function drawBarGraphScene3(data){
     //.attr("height", d => height - y(d.annual_co2_emissions))
     .attr("height", 0)
     .attr("fill", "steelblue")
+    .on("mouseover", function(event, d){
+        tooltip.transition()
+        .duration(200)
+        .style("opacity", 0.9);
+
+        tooltip.html(
+            `<strong>Fuel Type:</strong> ${d.Type}<br>
+            <strong>Emissions:</strong> ${(d.annual_co2_emissions / 1e9).toFixed(2)} billion tonnes<br>
+            <strong>Percentage of Total:</strong> ${(d.annual_co2_emissions/totalEmissions*100).toFixed(1)}%`
+        ).style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px");
+
+        d3.select(this)
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
+
+    })
+
+    .on("mousemove", function(event, d){
+        tooltip.style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+
+    .on("mouseout", function(event, d){
+        tooltip.transition()
+        .duration(500)
+        .style("opacity", 0);
+
+        d3.select(this)
+        .attr("stroke", "none")
+        .attr("stroke-width", 0);
+    })
     .transition()
     .duration(1000)
     .ease(d3.easeExpOut)
     .attr("y", d => y(d.annual_co2_emissions))
     .attr("height", d => height - y(d.annual_co2_emissions));
-}
 
+}
 //Navigation event listeners and helpers
 
 prevButton.on("click", () => {
