@@ -224,15 +224,22 @@ function drawBarGraphScene3(data){
     chartG.append("g")
     .call(d3.axisLeft(y));
 
-    chartG.selectAll()
+    chartG.selectAll("rect")
     .data(data)
     .enter()
     .append("rect")
     .attr("x", d => x(d.Type))
-    .attr("y", d => y(d.annual_co2_emissions))
+    //.attr("y", d => y(d.annual_co2_emissions))
+    .attr("y", height)
     .attr("width", x.bandwidth())
-    .attr("height", d => height - y(d.annual_co2_emissions))
-    .attr("fill", "steelblue");
+    //.attr("height", d => height - y(d.annual_co2_emissions))
+    .attr("height", 0)
+    .attr("fill", "steelblue")
+    .transition()
+    .duration(1000)
+    .ease(d3.easeExpOut)
+    .attr("y", d => y(d.annual_co2_emissions))
+    .attr("height", d => height - y(d.annual_co2_emissions));
 }
 
 //Navigation event listeners and helpers
