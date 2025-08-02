@@ -1,7 +1,7 @@
 //Global set up and configuration
 const margin = {top: 10, right: 30, bottom: 30, left: 100},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    width = 1100 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
 const svgContainer = d3.select('#visualization')
     .append("svg")
@@ -121,13 +121,40 @@ function drawScene1PreRise (data, yScale){
         //.y(d => y(d.mean));
         .y(d => yScale(d.mean));
 
-    chartG.append("path")
+    const path = chartG.append("path")
         .datum(data)
         .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
         .attr("d", line);
+
+    const totalLength = path.node().getTotalLength();
+    path.attr("stroke-dasharray", totalLength + " " + totalLength)
+        .attr("stroke-dashoffset", totalLength)
+        .transition()
+        .duration(6500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+    
+    const industrialRevolution = data.find(d => d.year === 1780)
+    const annotations = [
+        {
+            note: {
+                label: "Here is the annotation label",
+                title: "Annotation title"
+            },
+            x: 50,
+            y: 50,
+            dy: 100,
+            dx: 100
+        }
+    ]
+
+    const makeAnnotations = d3.annotation()
+    .annotations(annotations);
+    chartG.append("g")
+    .call(makeAnnotations);
 }
 
 function drawScene2PostRise(data, yScale){
@@ -160,13 +187,21 @@ function drawScene2PostRise(data, yScale){
         //.y(d => y(d.mean));
         .y(d => yScale(d.mean));
 
-    chartG.append("path")
+    const path = chartG.append("path")
         .datum(data)
         .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
+    
+    const totalLength = path.node().getTotalLength();
+    path.attr("stroke-dasharray", totalLength + " " + totalLength)
+    .attr("stroke-dashoffset", totalLength)
+    .transition()
+    .duration(1000)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0);
 }
 
 function drawBarGraphScene3(data){
