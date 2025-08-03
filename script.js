@@ -154,7 +154,9 @@ function drawScene1PreRise (data, yScale){
             x: industrial_1750_X,
             y: industrial_1750_Y,
             dy: -60,
-            dx: 60
+            dx: 60,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
         {
             note: {
@@ -164,7 +166,9 @@ function drawScene1PreRise (data, yScale){
             x: co2_warning_1896_X,
             y: co2_warning_1896_Y,
             dy: -60,
-            dx: -60
+            dx: -60,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
         {
             note: {
@@ -174,7 +178,9 @@ function drawScene1PreRise (data, yScale){
             x: early1900sX,
             y: early1900sY,
             dy: -60,
-            dx: 60
+            dx: 60,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         }
     ]
     //const makeAnnotations = d3.annotation()
@@ -265,11 +271,6 @@ function drawScene2PostRise(data, yScale){
     const heatwave_2003X = x(heatwave_2003.date);
     const heatwave_2003Y = yScale(heatwave_2003.mean);
 
-    //2016 Global Coral Bleaching
-    //const coral_2016 = data.find(d => d.date.getFullYear() === 2016);
-    //const coral_2016X = x(coral_2016.date);
-    //const coral_2016Y = yScale(coral_2016.mean);
-
     //2020 WildFire Records Broken
     const wildfire_2020 = data.find(d => d.date.getFullYear() === 2020);
     const wildfire_2020X = x(wildfire_2020.date);
@@ -291,7 +292,9 @@ function drawScene2PostRise(data, yScale){
             x: post_ww2_1950X,
             y: post_ww2_1950Y,
             dy: -100,
-            dx: -80
+            dx: -80,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
         
         {
@@ -304,7 +307,9 @@ function drawScene2PostRise(data, yScale){
             x: critical_1988X,
             y: critical_1988Y,
             dy: -90,
-            dx: -80
+            dx: -80,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
         {
             note: {
@@ -316,21 +321,10 @@ function drawScene2PostRise(data, yScale){
             x: heatwave_2003X,
             y: heatwave_2003Y,
             dy: 120,
-            dx: -30
+            dx: -30,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
-        /*
-        {
-            note: {
-                label: "2016: Widespread coral bleaching due to ocean warming",
-                title: "Real-World Impact: Global Coral Bleaching",
-                wrap: 150,
-                align: "left"
-            },
-            x: coral_2016X,
-            y: coral_2016Y,
-            dy: 200,
-            dx: -200
-        },*/
         {
             note: {
                 label: "2020: Record wildfire seasons, intensified by climate change",
@@ -341,7 +335,9 @@ function drawScene2PostRise(data, yScale){
             x: wildfire_2020X,
             y: wildfire_2020Y,
             dy: -20,
-            dx: -170
+            dx: -170,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         },
         
         {
@@ -354,7 +350,9 @@ function drawScene2PostRise(data, yScale){
             x: latest_2023X,
             y: latest_2023Y,
             dy: 120,
-            dx: 0
+            dx: 0,
+            type: d3.annotationCalloutCircle,
+            subject: {radius: 5}
         }
     ]
     /*
