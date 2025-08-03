@@ -59,7 +59,6 @@ updateButtons();
 function updateScene(sceneIndex){
     //clear current chart
     chartG.selectAll("*").remove();
-    chartG.select(".annotation-group").remove();
     //set up scene based on index
     if(sceneIndex == 0){
         narrativeTextDiv.html("<h3>Scene 1</h3>")
@@ -364,6 +363,9 @@ function drawScene2PostRise(data, yScale){
     chartG.append("g")
     .call(makeAnnotations);
     */
+
+    const annotationGroup = chartG.append("g")
+    .attr("class", "annotation-group");
     
     path.transition()
     .duration(6500)
@@ -372,7 +374,7 @@ function drawScene2PostRise(data, yScale){
     .on("end", () => {
         annotations.forEach((a, i) => {
             const single = d3.annotation().annotations([a]);
-            const group = chartG.append("g")
+            const group = annotationGroup.append("g")
             .style("opacity", 0)
             .call(single);
 
