@@ -340,8 +340,8 @@ function drawScene2PostRise(data, yScale){
             },
             x: wildfire_2020X,
             y: wildfire_2020Y,
-            dy: -30,
-            dx: -120
+            dy: -20,
+            dx: -170
         },
         
         {
