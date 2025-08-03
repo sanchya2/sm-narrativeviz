@@ -107,8 +107,26 @@ function drawScene1PreRise (data, yScale){
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end");
 
+    //x-axis label
+    chartG.append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("fill", "black")
+    .style("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Year");
+
     chartG.append("g")
-        .call(yAxis);
+        .call(yAxis)
+        .append("text")
+        .attr("fill", "black")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 30)
+        .attr("x", -height / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-size", "12px")
+        .text("CO2 Emissions (tonnes)");
 
     const line = d3.line()
         .x(d => x(d.date))
@@ -232,8 +250,26 @@ function drawScene2PostRise(data, yScale){
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end");
 
+    //x-axis label
+    chartG.append("text")
+        .attr("x", width / 2 + 40)
+        .attr("y", height + margin.bottom)
+        .attr("fill", "black")
+        .style("text-anchor", "middle")
+        .style("font-size", "14px")
+        .text("Year");
+
     chartG.append("g")
-        .call(yAxis);
+        .call(yAxis)
+        .append("text")
+        .attr("fill", "black")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 30)
+        .attr("x", -height / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-size", "12px")
+        .text("CO2 Emissions (tonnes)");
 
     const line = d3.line()
         .x(d => x(d.date))
@@ -404,8 +440,26 @@ function drawBarGraphScene3(data){
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
+    //x-axis label
+    chartG.append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("fill", "black")
+    .style("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Emission Cause");
+
     chartG.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("fill", "black")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -margin.left + 30)
+    .attr("x", -height / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text("CO2 Emissions (tonnes)");
 
     let tooltip = d3.select("body")
     .append("div")
