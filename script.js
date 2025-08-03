@@ -1,7 +1,7 @@
 //Global set up and configuration
-const margin = {top: 10, right: 30, bottom: 30, left: 100},
-    width = 1100 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+const margin = {top: 80, right: 100, bottom: 30, left: 150},
+    width = 1400 - margin.left - margin.right,
+    height = 650 - margin.top - margin.bottom;
 
 const svgContainer = d3.select('#visualization')
     .append("svg")
@@ -59,6 +59,7 @@ updateButtons();
 function updateScene(sceneIndex){
     //clear current chart
     chartG.selectAll("*").remove();
+    chartG.select(".annotation-group").remove();
     //set up scene based on index
     if(sceneIndex == 0){
         narrativeTextDiv.html("<h3>Scene 1</h3>")
@@ -95,12 +96,6 @@ function drawScene1PreRise (data, yScale){
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, width]);
-
-    //const y = d3.scaleLinear()
-    //    .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
-        //.domain(yAxisConsistent)
-    //    .nice()
-    //    .range([height, 0])
 
     const xAxis = d3.axisBottom(x)
     //const yAxis = d3.axisLeft(y)
@@ -183,10 +178,31 @@ function drawScene1PreRise (data, yScale){
             dx: 60
         }
     ]
-    const makeAnnotations = d3.annotation()
-    .annotations(annotations);
-    chartG.append("g")
-    .call(makeAnnotations);
+    //const makeAnnotations = d3.annotation()
+    //.annotations(annotations);
+    //chartG.append("g")
+    //.call(makeAnnotations);
+    const annotationGroup = chartG.append("g")
+    .attr("class", "annotation-group");
+
+    path.transition()
+    .duration(6500)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0)
+    .on("end", () => {
+        annotations.forEach((a, i) => {
+            const single = d3.annotation().annotations([a]);
+            const group = annotationGroup.append("g")
+            .style("opacity", 0)
+            .call(single);
+
+            group.transition()
+            .delay(i * 1500)
+            .duration(800)
+            .style("opacity", 1);
+        }
+        )
+    });
 }
 
 function drawScene2PostRise(data, yScale){
@@ -234,6 +250,141 @@ function drawScene2PostRise(data, yScale){
     .duration(1000)
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0);
+
+    //1950 Post WW2 Boom
+    const post_ww2_1950 = data.find(d => d.date.getFullYear() === 1950);
+    const post_ww2_1950X = x(post_ww2_1950.date);
+    const post_ww2_1950Y = yScale(post_ww2_1950.mean);
+
+    //1988 Critical Threshold Exceeded
+    const critical_1988 = data.find(d => d.date.getFullYear() === 1988);
+    const critical_1988X = x(critical_1988.date);
+    const critical_1988Y = yScale(critical_1988.mean);
+
+    //2003 European HeatWave
+    const heatwave_2003 = data.find(d => d.date.getFullYear() === 2003);
+    const heatwave_2003X = x(heatwave_2003.date);
+    const heatwave_2003Y = yScale(heatwave_2003.mean);
+
+    //2016 Global Coral Bleaching
+    //const coral_2016 = data.find(d => d.date.getFullYear() === 2016);
+    //const coral_2016X = x(coral_2016.date);
+    //const coral_2016Y = yScale(coral_2016.mean);
+
+    //2020 WildFire Records Broken
+    const wildfire_2020 = data.find(d => d.date.getFullYear() === 2020);
+    const wildfire_2020X = x(wildfire_2020.date);
+    const wildfire_2020Y = yScale(wildfire_2020.mean);
+
+    //2023 Latest CO2 Level
+    const latest_2023 = data.find(d => d.date.getFullYear() === 2023);
+    const latest_2023X = x(latest_2023.date);
+    const latest_2023Y = yScale(latest_2023.mean);
+
+    const annotations = [
+        {
+            note: {
+                label: "1950s: Post-WW2 boom, human activity drives sharp CO2 surge",
+                title: "Post-WW2 Boom: Crucial Turning Point",
+                wrap: 160,
+                align: "left"
+            },
+            x: post_ww2_1950X,
+            y: post_ww2_1950Y,
+            dy: -100,
+            dx: -80
+        },
+        
+        {
+            note: {
+                label: "1988: CO2 levels exxceeded 350ppm, a critical threshold for climate stability",
+                title: "Critical CO2 Level Surpassed",
+                wrap: 160,
+                align: "right"
+            },
+            x: critical_1988X,
+            y: critical_1988Y,
+            dy: -90,
+            dx: -80
+        },
+        {
+            note: {
+                label: "2003: Devastating European heatwave, record temperatures with rising CO2",
+                title: "Real-World Impact: 2003 European Heatwave",
+                wrap: 140,
+                align: "right"
+            },
+            x: heatwave_2003X,
+            y: heatwave_2003Y,
+            dy: 120,
+            dx: -30
+        },
+        /*
+        {
+            note: {
+                label: "2016: Widespread coral bleaching due to ocean warming",
+                title: "Real-World Impact: Global Coral Bleaching",
+                wrap: 150,
+                align: "left"
+            },
+            x: coral_2016X,
+            y: coral_2016Y,
+            dy: 200,
+            dx: -200
+        },*/
+        {
+            note: {
+                label: "2020: Record wildfire seasons, intensified by climate change",
+                title: "Real-World Impact: Extreme Wildfires",
+                wrap: 140,
+                align: "right"
+            },
+            x: wildfire_2020X,
+            y: wildfire_2020Y,
+            dy: -30,
+            dx: -120
+        },
+        
+        {
+            note: {
+                label: `2023 Current CO2 Level is ${(latest_2023.mean / 1e9).toFixed(2)} billion tonnes`,
+                title: "Current CO2 Level",
+                wrap: 150,
+                align: "right"
+            },
+            x: latest_2023X,
+            y: latest_2023Y,
+            dy: 120,
+            dx: 0
+        }
+    ]
+    /*
+    const makeAnnotations = d3.annotation()
+    .annotations(annotations);
+    chartG.append("g")
+    .call(makeAnnotations);
+    */
+    
+    path.transition()
+    .duration(6500)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0)
+    .on("end", () => {
+        annotations.forEach((a, i) => {
+            const single = d3.annotation().annotations([a]);
+            const group = chartG.append("g")
+            .style("opacity", 0)
+            .call(single);
+
+            group.transition()
+            .delay(i * 1500)
+            .duration(800)
+            .style("opacity", 1);
+        }
+
+        )
+    });
+    
 }
 
 function drawBarGraphScene3(data){
