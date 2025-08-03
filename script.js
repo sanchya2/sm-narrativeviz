@@ -20,7 +20,8 @@ const totalScenes = 3
 let currentSceneIndex = 0
 
 let co2_annual_data = [];
-let co2_fuel_type_2023 = []
+let co2_fuel_type_2023 = [];
+let co2_country_emissions = [];
 
 let sharedYScale; //For consistent y-axis
 
@@ -41,8 +42,34 @@ async function setUpSceneLoadData(){
         annual_co2_emissions: +d.annual_co2_emissions
 }));
 
-console.log(co2_annual_data);
-console.log(co2_fuel_type_2023);
+    co2_country_emissions = await d3.csv("co2_emissions_type_country.csv", d => ({
+        country: d.Country,
+        oil: +d.Oil,
+        coal: +d.Coal,
+        cement: +d.Cement,
+        gas: +d.Gas,
+        flaring: +d.Flaring,
+        other_industry: +d["Other Industry"]
+    }))
+
+//console.log(co2_annual_data);
+//console.log(co2_fuel_type_2023);
+console.log(co2_country_emissions[0]);
+
+const reshapedCountryEmissions = [];
+co2_country_emissions.forEach(d => {
+    reshapedCountryEmissions.push(
+        { country: d.country, type: "Oil", emissions: d.oil },
+        { country: d.country, type: "Coal", emissions: d.coal },
+        { country: d.country, type: "Cement", emissions: d.cement },
+        { country: d.country, type: "Gas", emissions: d.gas },
+        { country: d.country, type: "Flaring", emissions: d.flaring },
+        { country: d.country, type: "Other Industry", emissions: d.other_industry }
+    );
+});
+
+//console.log(reshapedCountryEmissions);
+co2_country_emissions = reshapedCountryEmissions;
 
 sharedYScale = d3.scaleLinear()
 .domain([d3.min(co2_annual_data, d=> d.mean)-1, d3.max(co2_annual_data, d => d.mean) + 1])
@@ -59,16 +86,21 @@ updateButtons();
 function updateScene(sceneIndex){
     //clear current chart
     chartG.selectAll("*").remove();
+    const countryContainer = d3.select("#country-container");
     //set up scene based on index
     if(sceneIndex == 0){
-        narrativeTextDiv.html("<h3>Scene 1</h3>")
+        narrativeTextDiv.html("<h3>Scene 1</h3>");
+        countryContainer.style("display", "none");
         drawScene1PreRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 1){
-        narrativeTextDiv.html("<h3>Scene 2</h3>")
+        narrativeTextDiv.html("<h3>Scene 2</h3>");
+        countryContainer.style("display", "none");
         drawScene2PostRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 2){
-        narrativeTextDiv.html("<h3>Scene 3</h3>")
-        drawBarGraphScene3(co2_fuel_type_2023);
+        narrativeTextDiv.html("<h3>Scene 3</h3>");
+        //drawBarGraphScene3(co2_fuel_type_2023);
+        countryContainer.style("display", "block");
+        drawBarGraphScene3(co2_country_emissions);
     }
 }
 
@@ -233,12 +265,12 @@ function drawScene2PostRise(data, yScale){
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, width]);
-
+    /*
     const y = d3.scaleLinear()
         .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
         .nice()
         .range([height, 0])
-
+    */
     const xAxis = d3.axisBottom(x)
     //const yAxis = d3.axisLeft(y)
     const yAxis = d3.axisLeft(yScale);
@@ -422,7 +454,7 @@ function drawScene2PostRise(data, yScale){
     });
     
 }
-
+/*
 function drawBarGraphScene3(data){
     const totalEmissions = d3.sum(data, d => d.annual_co2_emissions);
     
@@ -513,6 +545,115 @@ function drawBarGraphScene3(data){
     .ease(d3.easeExpOut)
     .attr("y", d => y(d.annual_co2_emissions))
     .attr("height", d => height - y(d.annual_co2_emissions));
+
+} */
+
+function drawBarGraphScene3(data){
+    const countrySelect = d3.select("#country-select");
+    const countries = [... new Set(data.map(d => d.country))];
+
+    countrySelect.selectAll("option").remove();
+    countrySelect.selectAll("option")
+    .data(countries)
+    .enter()
+    .append("option")
+    .attr("value", d => d)
+    .text(d => d);
+
+    //TODO change
+    let selectedCountry = "World";
+    countrySelect.property("value", selectedCountry);
+
+    function updateChart(countryName){
+        chartG.selectAll("*").remove();
+        const countryData = data.filter(d => d.country == countryName);
+
+        const x = d3.scaleBand()
+            .domain(countryData.map(d => d.type))
+            .range([0, width])
+            .padding(0.1);
+        
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(countryData, d => d.emissions)])
+            .nice()
+            .range([height, 0]);
+        
+        chartG.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("text-anchor", "middle");
+
+        chartG.append("text")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom)
+            .attr("fill", "black")
+            .style("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text("Emission Cause");
+        
+        chartG.append("g")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("fill", "black")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 30)
+            .attr("x", -height / 2)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text("CO2 Emissions (tonnes)");
+
+        let tooltip = d3.select("body").select(".tooltip");
+            if (tooltip.empty()) {
+            tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+        }
+
+        chartG.selectAll("rect")
+            .data(countryData)
+            .enter()
+            .append("rect")
+            .attr("x", d => x(d.type))
+            .attr("y", height)
+            .attr("width", x.bandwidth())
+            .attr("height", 0)
+            .attr("fill", "steelblue")
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", 0.9);
+                tooltip.html(
+                `<strong>Fuel Type:</strong> ${d.type}<br>` +
+                `<strong>Emissions:</strong> ${(d.emissions / 1e6).toFixed(2)} million tonnes`
+            )
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+
+        d3.select(this)
+          .attr("stroke", "black")
+          .attr("stroke-width", 2);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 10) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function() {
+        tooltip.transition().duration(500).style("opacity", 0);
+        d3.select(this)
+          .attr("stroke", "none")
+          .attr("stroke-width", 0);
+      })
+      .transition()
+      .duration(1000)
+      .ease(d3.easeExpOut)
+      .attr("y", d => y(d.emissions))
+      .attr("height", d => height - y(d.emissions));
+    }
+    updateChart(selectedCountry);
+        countrySelect.on("change", function () {
+        selectedCountry = this.value;
+        updateChart(selectedCountry);
+    });
 
 }
 //Navigation event listeners and helpers
