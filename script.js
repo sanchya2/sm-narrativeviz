@@ -20,7 +20,6 @@ const totalScenes = 3
 let currentSceneIndex = 0
 
 let co2_annual_data = [];
-let co2_fuel_type_2023 = [];
 let co2_country_emissions = [];
 
 let sharedYScale; //For consistent y-axis
@@ -37,11 +36,6 @@ async function setUpSceneLoadData(){
         mean: +d.annual_co2_emissions
 }));
 
-    co2_fuel_type_2023 = await d3.csv("co2-emissions-by-type_2023.csv", d => ({
-        Type: d.Type,
-        annual_co2_emissions: +d.annual_co2_emissions
-}));
-
     co2_country_emissions = await d3.csv("co2_emissions_type_country.csv", d => ({
         country: d.Country,
         oil: +d.Oil,
@@ -52,9 +46,8 @@ async function setUpSceneLoadData(){
         other_industry: +d["Other Industry"]
     }))
 
-//console.log(co2_annual_data);
-//console.log(co2_fuel_type_2023);
-console.log(co2_country_emissions[0]);
+console.log(co2_annual_data);
+console.log(co2_country_emissions);
 
 const reshapedCountryEmissions = [];
 co2_country_emissions.forEach(d => {
@@ -89,16 +82,29 @@ function updateScene(sceneIndex){
     const countryContainer = d3.select("#country-container");
     //set up scene based on index
     if(sceneIndex == 0){
-        narrativeTextDiv.html("<h3>Scene 1</h3>");
+        narrativeTextDiv.html(`
+        <h3>The Early Chapters of CO2 Emissions</h3>
+        <p>Welcome to our visualization exploring global CO2 emissions. These emissions are the primary driver of human-caused climate change.</p>
+        <p>This scene shows annual emissions from 1750 to 1950. We see the initial low levels and the gentle, almost imperceptible, rise as the Industrial Revolution began to unfold.</p>
+        <p><strong>Use the Next and Previous buttons above to navigate the story.</strong></p>
+        `);
         countryContainer.style("display", "none");
         drawScene1PreRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 1){
-        narrativeTextDiv.html("<h3>Scene 2</h3>");
+        narrativeTextDiv.html(`
+        <h3>The Accelerating Rise and Its Global Impacts</h3>
+        <p>Following the 1950s, global CO2 emissions began a dramatic and unprecedented acceleration. This rapid increase has led to profound changes in our climate.</p>
+        <p>Key impacts are highlighted along the timeline, directly linking rising emissions to real-world consequences across the globe.</p>
+        <p><strong>Use the Next and Previous buttons to continue navigating the story.</strong></p>
+        `);
         countryContainer.style("display", "none");
         drawScene2PostRise(co2_annual_data, sharedYScale);
     }else if (sceneIndex == 2){
-        narrativeTextDiv.html("<h3>Scene 3</h3>");
-        //drawBarGraphScene3(co2_fuel_type_2023);
+        narrativeTextDiv.html(`
+        <h3>Understanding Global Emission Sources in 2023</h3>
+        <p>To tackle climate change, we must understand its sources. This chart breaks down global CO2 emissions by major fuel type in 2023. 
+        <p>You can use the dropdown menu to filter emissions by country, and hover over each bar to explore precise emission figures.</p>
+        `);
         countryContainer.style("display", "block");
         drawBarGraphScene3(co2_country_emissions);
     }
@@ -129,7 +135,6 @@ function drawScene1PreRise (data, yScale){
         .range([0, width]);
 
     const xAxis = d3.axisBottom(x)
-    //const yAxis = d3.axisLeft(y)
     const yAxis = d3.axisLeft(yScale)
 
     chartG.append("g")
@@ -162,14 +167,13 @@ function drawScene1PreRise (data, yScale){
 
     const line = d3.line()
         .x(d => x(d.date))
-        //.y(d => y(d.mean));
         .y(d => yScale(d.mean));
 
     const path = chartG.append("path")
         .datum(data)
         .attr("class", "line")
         .attr("fill", "none")
-        .attr("stroke", "red")
+        .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
 
@@ -177,8 +181,8 @@ function drawScene1PreRise (data, yScale){
     path.attr("stroke-dasharray", totalLength + " " + totalLength)
         .attr("stroke-dashoffset", totalLength)
         .transition()
-        .duration(6500)
-        .ease(d3.easeLinear)
+        //.duration(6500)
+        //.ease(d3.easeLinear)
         .attr("stroke-dashoffset", 0);
     
     //Industrial Revolution Begins
@@ -241,7 +245,7 @@ function drawScene1PreRise (data, yScale){
     .attr("class", "annotation-group");
 
     path.transition()
-    .duration(6500)
+    .duration(3500)
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0)
     .on("end", () => {
@@ -252,7 +256,7 @@ function drawScene1PreRise (data, yScale){
             .call(single);
 
             group.transition()
-            .delay(i * 1500)
+            .delay(i * 1000)
             .duration(800)
             .style("opacity", 1);
         }
@@ -265,14 +269,8 @@ function drawScene2PostRise(data, yScale){
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, width]);
-    /*
-    const y = d3.scaleLinear()
-        .domain([d3.min(data, d => d.mean) - 1, d3.max(data, d => d.mean)])
-        .nice()
-        .range([height, 0])
-    */
+
     const xAxis = d3.axisBottom(x)
-    //const yAxis = d3.axisLeft(y)
     const yAxis = d3.axisLeft(yScale);
 
     chartG.append("g")
@@ -305,7 +303,6 @@ function drawScene2PostRise(data, yScale){
 
     const line = d3.line()
         .x(d => x(d.date))
-        //.y(d => y(d.mean));
         .y(d => yScale(d.mean));
 
     const path = chartG.append("path")
@@ -320,8 +317,8 @@ function drawScene2PostRise(data, yScale){
     path.attr("stroke-dasharray", totalLength + " " + totalLength)
     .attr("stroke-dashoffset", totalLength)
     .transition()
-    .duration(1000)
-    .ease(d3.easeLinear)
+    //.duration(1000)
+    //.ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0);
 
     //1950 Post WW2 Boom
@@ -434,7 +431,7 @@ function drawScene2PostRise(data, yScale){
     .attr("class", "annotation-group");
     
     path.transition()
-    .duration(6500)
+    .duration(1200)
     .ease(d3.easeLinear)
     .attr("stroke-dashoffset", 0)
     .on("end", () => {
@@ -445,7 +442,7 @@ function drawScene2PostRise(data, yScale){
             .call(single);
 
             group.transition()
-            .delay(i * 1500)
+            .delay(i * 850)
             .duration(800)
             .style("opacity", 1);
         }
@@ -454,99 +451,6 @@ function drawScene2PostRise(data, yScale){
     });
     
 }
-/*
-function drawBarGraphScene3(data){
-    const totalEmissions = d3.sum(data, d => d.annual_co2_emissions);
-    
-    const x = d3.scaleBand()
-    .domain(data.map(d => d.Type))
-    .range([0, width])
-    .padding(0.1);
-
-    const y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.annual_co2_emissions)])
-    .nice()
-    .range([height, 0]);
-
-    chartG.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x));
-
-    //x-axis label
-    chartG.append("text")
-    .attr("x", width / 2)
-    .attr("y", height + margin.bottom)
-    .attr("fill", "black")
-    .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .text("Emission Cause");
-
-    chartG.append("g")
-    .call(d3.axisLeft(y))
-    .append("text")
-    .attr("fill", "black")
-    .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 30)
-    .attr("x", -height / 2)
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("font-size", "12px")
-    .text("CO2 Emissions (tonnes)");
-
-    let tooltip = d3.select("body")
-    .append("div")
-    .attr("class", "tooltip");
-
-    chartG.selectAll("rect")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("x", d => x(d.Type))
-    //.attr("y", d => y(d.annual_co2_emissions))
-    .attr("y", height)
-    .attr("width", x.bandwidth())
-    //.attr("height", d => height - y(d.annual_co2_emissions))
-    .attr("height", 0)
-    .attr("fill", "steelblue")
-    .on("mouseover", function(event, d){
-        tooltip.transition()
-        .duration(200)
-        .style("opacity", 0.9);
-
-        tooltip.html(
-            `<strong>Fuel Type:</strong> ${d.Type}<br>
-            <strong>Emissions:</strong> ${(d.annual_co2_emissions / 1e9).toFixed(2)} billion tonnes<br>
-            <strong>Percentage of Total:</strong> ${(d.annual_co2_emissions/totalEmissions*100).toFixed(1)}%`
-        ).style("left", (event.pageX + 10) + "px")
-        .style("top", (event.pageY - 28) + "px");
-
-        d3.select(this)
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
-
-    })
-
-    .on("mousemove", function(event, d){
-        tooltip.style("left", (event.pageX + 10) + "px")
-        .style("top", (event.pageY - 28) + "px");
-    })
-
-    .on("mouseout", function(event, d){
-        tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
-
-        d3.select(this)
-        .attr("stroke", "none")
-        .attr("stroke-width", 0);
-    })
-    .transition()
-    .duration(1000)
-    .ease(d3.easeExpOut)
-    .attr("y", d => y(d.annual_co2_emissions))
-    .attr("height", d => height - y(d.annual_co2_emissions));
-
-} */
 
 function drawBarGraphScene3(data){
     const countrySelect = d3.select("#country-select");
@@ -560,7 +464,6 @@ function drawBarGraphScene3(data){
     .attr("value", d => d)
     .text(d => d);
 
-    //TODO change
     let selectedCountry = "World";
     countrySelect.property("value", selectedCountry);
 

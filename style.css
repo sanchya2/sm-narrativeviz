@@ -1,3 +1,27 @@
+#narrative-text {
+    margin-bottom: 25px; /* Space between narrative text and the chart below */
+
+    /* Control overall size and background */
+    min-height: 100px; 
+    background-color: aliceblue; 
+    border-radius: 8px; 
+
+    /* Text readability */
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;          
+    text-align: left;
+
+    /* Max width to prevent very long lines on wide screens */
+    max-width: 800px; /* Adjust this to control how wide the text block gets */
+    margin-left: 0px;
+}
+
+#controls{
+    margin-bottom: 15px;
+}
+
+
 .tooltip {
     position: absolute;
     opacity: 0;
@@ -11,4 +35,17 @@
     line-height: 1.4;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.annotation-group path,
+.annotation-group line { 
+    stroke: grey;
+    stroke-width: 1px;
+}
+.annotation-group text { 
+    font-family: Georgia, serif; 
+    fill: #555; 
+}
+.annotation-group .annotation-note-title {
+    font-weight: bold;
+    fill: #333;
 }

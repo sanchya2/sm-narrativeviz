@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My D3 Narrative Vis</title>
+    <title>CO2 Pollution</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Narrative visualization</h1>
-    <div id="visualization">
+    <h1>The Rise and Impacts of CO2 Pollution and What's Causing It</h1>
+    <div id="narrative-text">
+    </div>
+    <div id="controls">
+        <button id="prevScene">Previous</button>
+        <button id="nextScene">Next</button>
     </div>
     <div id="country-container" style="display: none;">
     <label for="country-select">Select Country:</label>
     <select id="country-select"></select>
     </div>
-    <div id="narrative-text">
-        </div>
-    <div id="controls">
-        <button id="prevScene">Previous</button>
-        <button id="nextScene">Next</button>
+    <div id="visualization">
     </div>
     <script src="d3.v7.min.js"></script>
     <script src="d3-annotation.min.js"></script>
