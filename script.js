@@ -84,7 +84,7 @@ function updateScene(sceneIndex){
     if(sceneIndex == 0){
         narrativeTextDiv.html(`
         <h3>The Early Chapters of CO2 Emissions</h3>
-        <p>Welcome to our visualization exploring global CO2 emissions. These emissions are the primary driver of human-caused climate change.</p>
+        <p>This visualization explores the rapid increase and causes of global CO2 emissions. These emissions are the primary driver of human-caused climate change.</p>
         <p>This scene shows annual emissions from 1750 to 1950. We see the initial low levels and the gentle, almost imperceptible, rise as the Industrial Revolution began to unfold.</p>
         <p><strong>Use the Next and Previous buttons above to navigate the story.</strong></p>
         `);

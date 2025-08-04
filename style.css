@@ -1,19 +1,17 @@
 #narrative-text {
-    margin-bottom: 25px; /* Space between narrative text and the chart below */
+    padding: 0px 10px;
+    margin-bottom: 25px; 
 
-    /* Control overall size and background */
     min-height: 100px; 
     background-color: aliceblue; 
     border-radius: 8px; 
 
-    /* Text readability */
     font-size: 14px;
     line-height: 1.6;
     color: #333;          
     text-align: left;
 
-    /* Max width to prevent very long lines on wide screens */
-    max-width: 800px; /* Adjust this to control how wide the text block gets */
+    max-width: 800px; 
     margin-left: 0px;
 }
 
